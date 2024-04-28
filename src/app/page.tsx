@@ -100,44 +100,6 @@ export default function Home() {
     router.push(url);
   };
 
-  const analyze = async () => {
-    const chunkSize = 100;
-    const chunks = [];
-
-    // for (let i = 0; i < walletAddressList.length; i += chunkSize) {
-    //   const chunk = walletAddressList.slice(i, i + chunkSize);
-    //   chunks.push(chunk);
-    // }
-
-    // const responses = await Promise.all(
-    //   chunks.map(async (chunk) => {
-    //     const response = await fetch(
-    //       "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
-    //         chunk.join(","),
-    //       neynarOptions
-    //     );
-    //     return response.json();
-    //   })
-    // );
-
-    // const data = responses.flatMap((response) => response.data);
-
-    // 一旦ス超すだけ実行
-    const chunk = walletAddressList.slice(0, chunkSize);
-    console.log(
-      "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
-        chunk.join(",")
-    );
-    const response = await fetch(
-      "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
-        chunk.join(","),
-      neynarOptions
-    );
-
-    const data = await response.json();
-    setFarcasterUsers(data);
-  };
-
   const handleTextareaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
