@@ -1,113 +1,201 @@
-import Image from "next/image";
+"use client";
+import { useDisclosure } from "@mantine/hooks";
+import { useRouter, usePathname } from "next/navigation";
+import { notifications } from "@mantine/notifications";
+import toast, { Toaster } from "react-hot-toast";
+
+import {
+  Container,
+  Title,
+  Text,
+  Button,
+  Radio,
+  Textarea,
+  Input,
+  Select,
+  Card,
+  Avatar,
+  Group,
+  Loader,
+  Tabs,
+  rem,
+  LoadingOverlay,
+  Center,
+  Paper,
+  TextInput,
+  Alert,
+  Box,
+} from "@mantine/core";
+import { chainOptions, AlchemyChainNames, ChainName } from "./lib/chain";
+
+import { useState } from "react";
+const iconStyle = { width: rem(12), height: rem(12) };
+
+const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
+
+const fetchOptions = { method: "GET", headers: { accept: "application/json" } };
 
 export default function Home() {
+  const router = useRouter();
+
+  const [chain, setChain] = useState<ChainName>("ethereum");
+  const [contractAddress, setContractAddress] = useState<string>("");
+  const [walletAddressList, setWalletAddressList] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [farcasterUsers, setFarcasterUsers] = useState<any>({});
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const fetchWalletAddress = async () => {
+    setIsLoading(true);
+
+    const url = `https://${
+      AlchemyChainNames[chain as ChainName]
+    }.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getOwnersForContract?contractAddress=${contractAddress}&withTokenBalances=false`;
+    const response = await fetch(url, fetchOptions);
+    const data = await response.json();
+    console.log(data.owners);
+    setWalletAddressList(data.owners);
+    setIsLoading(false);
+  };
+
+  const handleNavigation = async () => {
+    setErrorMessage("");
+
+    // バリデーションチェック
+    // 存在チェック
+    if (!contractAddress || !chain) {
+      setErrorMessage("Please enter contract address and select chain.");
+      return;
+    }
+
+    // アドレスのフォーマットチェック
+    const isAddressValid = (address: string) =>
+      /^(0x)?[0-9a-fA-F]{40}$/i.test(address);
+
+    if (!isAddressValid(contractAddress)) {
+      setErrorMessage("Invalid contract address format");
+      return;
+    }
+
+    // コレクションのチェック
+    const contractMetadataUrl = `https://${
+      AlchemyChainNames[chain as ChainName]
+    }.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`;
+    const response = await fetch(contractMetadataUrl, fetchOptions);
+    const data = await response.json();
+    if (data.tokenType === "NOT_A_CONTRACT") {
+      setErrorMessage("Invalid contract address");
+      return;
+    }
+    setIsLoading(true);
+
+    const query = {
+      chain: chain!,
+      contractAddress: contractAddress,
+    };
+
+    const searchParams = new URLSearchParams(query);
+    const url = `/result?${searchParams.toString()}`;
+
+    router.push(url);
+  };
+
+  const analyze = async () => {
+    const chunkSize = 100;
+    const chunks = [];
+
+    // for (let i = 0; i < walletAddressList.length; i += chunkSize) {
+    //   const chunk = walletAddressList.slice(i, i + chunkSize);
+    //   chunks.push(chunk);
+    // }
+
+    // const responses = await Promise.all(
+    //   chunks.map(async (chunk) => {
+    //     const response = await fetch(
+    //       "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
+    //         chunk.join(","),
+    //       neynarOptions
+    //     );
+    //     return response.json();
+    //   })
+    // );
+
+    // const data = responses.flatMap((response) => response.data);
+
+    // 一旦ス超すだけ実行
+    const chunk = walletAddressList.slice(0, chunkSize);
+    console.log(
+      "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
+        chunk.join(",")
+    );
+    const response = await fetch(
+      "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
+        chunk.join(","),
+      neynarOptions
+    );
+
+    const data = await response.json();
+    setFarcasterUsers(data);
+  };
+
+  const handleTextareaChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const addresses = event.target.value
+      .split("\n")
+      .map((address) => address.trim());
+    setWalletAddressList(addresses);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <>
+      <LoadingOverlay
+        visible={isLoading}
+        zIndex={1000}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+      <Toaster />
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <Container size="sm" mt={40}>
+        <Paper shadow="md" p="xl" radius="md">
+          <Center>
+            <Title order={2} mb={20}>
+              NFT Owner Find on Farcaster
+            </Title>
+          </Center>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          <Select
+            label="Select Chain"
+            placeholder="Chain"
+            data={chainOptions}
+            defaultValue={"ethereum"}
+            onChange={(value: string | null) =>
+              value !== null && setChain(value as ChainName)
+            }
+            mb={20}
+          />
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+          <TextInput
+            label="NFT Contract Address"
+            placeholder="Enter contract address"
+            value={contractAddress}
+            onChange={(e) => setContractAddress(e.target.value)}
+            mb={20}
+          />
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+          {errorMessage && (
+            <Box pb={20}>
+              <Alert variant="light" color="red" title={errorMessage}></Alert>
+            </Box>
+          )}
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          <Center>
+            <Button size="md" onClick={handleNavigation}>
+              Check !
+            </Button>
+          </Center>
+        </Paper>
+      </Container>
+    </>
   );
 }
