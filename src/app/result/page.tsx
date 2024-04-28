@@ -240,7 +240,27 @@ export default async function Page({
         </Center>
 
         <Center>
-          <Button>Share on Warpcast</Button>
+          <a
+            target="_blank"
+            href={
+              "https://warpcast.com/~/compose?text=" +
+              "Out of the " +
+              walletAddressList.length +
+              " " +
+              collectionSlug +
+              "holders,\n" +
+              tableData.body?.length +
+              " have registerd a Farcaster account. &embeds[]=" +
+              " !&embeds[]=" +
+              process.env.NEXT_PUBLIC_SITE_URL +
+              "/api/" +
+              searchParams?.chain +
+              ":" +
+              searchParams?.contractAddress
+            }
+          >
+            <Button>Share on Warpcast</Button>
+          </a>
           <Box px={8} />
           <Button disabled={true}>Update Result(Upcoming)</Button>
         </Center>

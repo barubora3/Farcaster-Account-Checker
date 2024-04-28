@@ -83,40 +83,18 @@ app.frame("/:id", async (c) => {
     (percentage / 100) * circumference
   } ${circumference}`;
 
+  const newSearchParams = new URLSearchParams({
+    label,
+    icon,
+    collectionSlug,
+    x: bodyLength.toString(),
+    y: walletAddressListLength.toString(),
+    circumference: circumference.toString(),
+    strokeDasharray,
+  });
+
   return c.res({
-    image: (
-      <VStack>
-        <div>Farcaster Penetration in the</div>
-
-        <Box>{label} holders</Box>
-
-        <Box alignContent="center">
-          <svg width="300" height="300">
-            <circle
-              cx="150"
-              cy="150"
-              r={radius}
-              fill="transparent"
-              stroke="#e0e0e0"
-              strokeWidth="30"
-            />
-            <circle
-              cx="150"
-              cy="150"
-              r={radius}
-              fill="transparent"
-              stroke="#0088FE"
-              strokeWidth="30"
-              strokeDasharray={strokeDasharray}
-              transform="rotate(-90 150 150)"
-            />
-          </svg>
-        </Box>
-        <Box width="20">
-          <Image src={icon} width={"20"} height={"20"} />
-        </Box>
-      </VStack>
-    ),
+    image: `${process.env.NEXT_PUBLIC_SITE_URL}/api/image?${newSearchParams}`,
     intents: [
       <Button.Link
         key="detail"

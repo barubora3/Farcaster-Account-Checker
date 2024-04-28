@@ -91,7 +91,7 @@ export default function Home() {
 
     const query = {
       chain: chain!,
-      contractAddress: contractAddress,
+      contractAddress: contractAddress.toLocaleLowerCase(),
     };
 
     const searchParams = new URLSearchParams(query);
