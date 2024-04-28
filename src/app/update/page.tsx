@@ -25,7 +25,7 @@ export default function Home() {
   const [icon, setIcon] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,6 +35,7 @@ export default function Home() {
     setName(params.get("name") as string);
     setIcon(params.get("icon") as string);
     setContractAddress(params.get("contractAddress") as string);
+    setIsLoading(false);
   }, []);
 
   const handleNavigation = async (isUpdate: boolean) => {
