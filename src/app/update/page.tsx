@@ -5,35 +5,37 @@ import {
   Container,
   Title,
   Button,
-  rem,
   LoadingOverlay,
   Center,
   Paper,
-  TextInput,
   Alert,
   Box,
   Text,
   Avatar,
 } from "@mantine/core";
-import { chainOptions, AlchemyChainNames, ChainName } from "@/app/lib/chain";
+import { ChainName } from "@/app/lib/chain";
 
-import { useState } from "react";
-const iconStyle = { width: rem(12), height: rem(12) };
-
-const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
-
-const fetchOptions = { method: "GET", headers: { accept: "application/json" } };
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const chain = searchParams.get("chain") as ChainName;
-  const name = searchParams.get("name") || "";
-  const icon = searchParams.get("icon") || "";
-  const contractAddress = searchParams.get("contractAddress") || "";
+
+  const [chain, setChain] = useState<ChainName>("ethereum");
+  const [name, setName] = useState<string>("");
+  const [icon, setIcon] = useState<string>("");
+  const [contractAddress, setContractAddress] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    setChain(params.get("chain") as ChainName);
+    setName(params.get("name") as string);
+    setIcon(params.get("icon") as string);
+    setContractAddress(params.get("contractAddress") as string);
+  }, []);
 
   const handleNavigation = async (isUpdate: boolean) => {
     setIsLoading(true);
@@ -64,6 +66,7 @@ export default function Home() {
               NFT Owner Find on Farcaster
             </Title>
           </Center>
+
           <Center pt={20}>
             <Avatar
               src={icon}
@@ -75,22 +78,6 @@ export default function Home() {
             </Text>
           </Center>
 
-          {/**
-          <TextInput
-            label="Chain"
-            placeholder="Select chain"
-            value={chain}
-            disabled={true}
-            mb={20}
-          />
-          <TextInput
-            label="NFT Contract Address"
-            placeholder="Enter contract address"
-            value={contractAddress}
-            disabled={true}
-            mb={20}
-          />
-           */}
           {errorMessage && (
             <Box pb={20}>
               <Alert variant="light" color="red" title={errorMessage}></Alert>
