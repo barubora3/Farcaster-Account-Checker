@@ -160,8 +160,6 @@ export default async function Page({
   };
 
   const registerData = async () => {
-    const chain = searchParams?.chain;
-    const contractAddress = searchParams?.contractAddress;
     const key = `${chain}:${contractAddress}`;
     const ref = db.ref(`collection/${key}`);
 
@@ -184,6 +182,10 @@ export default async function Page({
     }
   };
 
+  let chain = searchParams?.chain as string;
+  let contractAddress = searchParams?.contractAddress as string;
+  const forceUpdate = searchParams?.forceUpdate || false;
+
   let label = "";
   let icon = "";
   let collectionSlug = "";
@@ -193,14 +195,8 @@ export default async function Page({
   // firebaseにデータが存在するかチェック
   const registerdData = await checkAndRestoreData();
 
-  if (registerdData.hasData && registerdData.data) {
-    label = registerdData.data.label;
-    icon = registerdData.data.icon || "";
-    collectionSlug = registerdData.data.collectionSlug;
-    walletAddressList = registerdData.data.walletAddressList;
-    tableData.body = registerdData.data.body;
-    updateAt = registerdData.data.updatedAt;
-  } else {
+  // DBのデータが存在しないか、forceUpdateが指定されている場合はデータ処理を実行
+  if (!registerdData.hasData || !registerdData.data || forceUpdate) {
     const collection = await getCollectionInfo();
     label = collection.label;
     icon = collection.icon;
@@ -209,6 +205,13 @@ export default async function Page({
     farcasterUsers = await analyze();
     const registerTime = await registerData();
     updateAt = registerTime;
+  } else {
+    label = registerdData.data.label;
+    icon = registerdData.data.icon || "";
+    collectionSlug = registerdData.data.collectionSlug;
+    walletAddressList = registerdData.data.walletAddressList;
+    tableData.body = registerdData.data.body;
+    updateAt = registerdData.data.updatedAt;
   }
 
   function formatDate(timestamp: number): string {
@@ -248,7 +251,7 @@ export default async function Page({
               walletAddressList.length +
               " " +
               collectionSlug +
-              "holders,\n" +
+              "holders, " +
               tableData.body?.length +
               " have registerd a Farcaster account. &embeds[]=" +
               " !&embeds[]=" +
@@ -262,7 +265,21 @@ export default async function Page({
             <Button>Share on Warpcast</Button>
           </a>
           <Box px={8} />
-          <Button disabled={true}>Update Result(Upcoming)</Button>
+
+          <a
+            href={
+              "/update?chain=" +
+              chain +
+              "&contractAddress=" +
+              contractAddress +
+              "&name=" +
+              label +
+              "&icon=" +
+              icon
+            }
+          >
+            <Button>Update Result</Button>
+          </a>
         </Center>
 
         <Text ta="right" pr={8} pb={4}>
