@@ -125,16 +125,28 @@ export default async function Page({
     // chunks = chunks.slice(0, 2);
     // console.log(chunks);
 
-    const responses = await Promise.all(
-      chunks.map(async (chunk) => {
-        const response = await fetch(
-          "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
-            chunk.join(","),
-          neynarOptions
-        );
-        return response.json();
-      })
-    );
+    // const responses = await Promise.all(
+    //   chunks.map(async (chunk) => {
+    //     const response = await fetch(
+    //       "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
+    //         chunk.join(","),
+    //       neynarOptions
+    //     );
+    //     return response.json();
+    //   })
+    // );
+
+    const responses = [];
+    for (const chunk of chunks) {
+      const response = await fetch(
+        "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=" +
+          chunk.join(","),
+        neynarOptions
+      );
+      const data = await response.json();
+      responses.push(data);
+      await new Promise((resolve) => setTimeout(resolve, 200)); // 200ミリ秒待機
+    }
 
     const data = responses
       .flatMap((response) => Object.entries(response))
