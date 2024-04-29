@@ -7,6 +7,7 @@ import { createSystem } from "frog/ui";
 
 const app = new Frog({
   basePath: "/api",
+  imageAspectRatio: "1:1",
 });
 
 const OpenSeaURL = "https://opensea.io/collection/";
@@ -84,14 +85,17 @@ app.frame("/:id", async (c) => {
   } ${circumference}`;
 
   const newSearchParams = new URLSearchParams({
-    label,
-    icon,
-    collectionSlug,
+    label: encodeURIComponent(label),
+    icon: icon,
+    collectionSlug: encodeURIComponent(collectionSlug),
     x: bodyLength.toString(),
     y: walletAddressListLength.toString(),
     circumference: circumference.toString(),
-    strokeDasharray,
+    strokeDasharray: [(percentage / 100) * circumference, circumference].join(
+      ","
+    ),
   });
+
 
   return c.res({
     image: `${process.env.NEXT_PUBLIC_SITE_URL}/api/image?${newSearchParams}`,

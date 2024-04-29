@@ -2,6 +2,14 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
+const headerTextSize = 80;
+const subTestSize = 50;
+const circleSize = 800;
+const textShadow =
+  // "2px 2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000, 0px 2px 0 #000, 0px -2px 0 #000, -2px 0px 0 #000, 2px 0px 0 #000";
+  // "3px 3px 0 #000, -3px 3px 0 #000, 3px -3px 0 #000, -3px -3px 0 #000, 0px 3px 0 #000, 0px -3px 0 #000, -3px 0px 0 #000, 3px 0px 0 #000";
+  "5px 5px 0 #000, -5px 5px 0 #000, 5px -5px 0 #000, -5px -5px 0 #000, 0px 5px 0 #000, 0px -5px 0 #000, -5px 0px 0 #000, 5px 0px 0 #000";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const label = searchParams.get("label")!;
@@ -58,11 +66,10 @@ export async function GET(request: Request) {
               lineHeight: 1,
               marginTop: 20,
               marginBottom: 0,
-              fontSize: 70,
+              fontSize: headerTextSize,
               fontFamily: '"Oswald Bold"',
               textAlign: "center",
-              textShadow:
-                "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, -1px 0px 0 #000, 1px 0px 0 #000",
+              textShadow: textShadow,
             }}
           >
             Farcaster Penetration in the
@@ -73,24 +80,23 @@ export async function GET(request: Request) {
               lineHeight: 1,
               marginTop: 0,
               marginBottom: 0,
-              fontSize: 70,
+              fontSize: headerTextSize,
               fontFamily: '"Oswald Bold"',
               textAlign: "center",
-              textShadow:
-                "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, -1px 0px 0 #000, 1px 0px 0 #000",
+              textShadow: textShadow,
             }}
           >
             {label + " "} holders
           </p>
         </div>
         <svg
-          width="400"
-          height="400"
+          width={circleSize}
+          height={circleSize}
           style={{
-            marginTop: 0,
+            marginTop: -20,
             position: "absolute",
-            top: "50%",
-            left: "45%",
+            top: "45%",
+            left: "39%",
             transform: "translate(-50%, -50%)",
           }}
         >
@@ -114,18 +120,22 @@ export async function GET(request: Request) {
           />
         </svg>
         <div
-          style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginTop: -30,
+            marginLeft: 60,
+          }}
         >
           <p
             style={{
               textAlign: "center",
-              fontSize: 50,
+              fontSize: headerTextSize,
               fontFamily: "Arial",
               marginBottom: 0,
               color: "#ffffff",
               lineHeight: 1,
-              textShadow:
-                "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, -1px 0px 0 #000, 1px 0px 0 #000",
+              textShadow: textShadow,
             }}
           >
             {((x / y) * 100).toFixed(2) + " "}%
@@ -162,11 +172,10 @@ export async function GET(request: Request) {
               lineHeight: 1,
               marginTop: 0,
               marginBottom: 0,
-              fontSize: 40,
+              fontSize: subTestSize,
               fontFamily: '"Oswald Bold"',
               textAlign: "center",
-              textShadow:
-                "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, -1px 0px 0 #000, 1px 0px 0 #000",
+              textShadow: textShadow,
             }}
           >
             Out of the {y} {label} holders,
@@ -177,11 +186,10 @@ export async function GET(request: Request) {
               lineHeight: 1,
               marginTop: 0,
               marginBottom: 0,
-              fontSize: 40,
+              fontSize: subTestSize,
               fontFamily: '"Oswald Bold"',
               textAlign: "center",
-              textShadow:
-                "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, -1px 0px 0 #000, 1px 0px 0 #000",
+              textShadow: textShadow,
             }}
           >
             {x} have registered a Farcaster account.
@@ -190,8 +198,8 @@ export async function GET(request: Request) {
       </div>
     ),
     {
-      width: 1200,
-      height: 630,
+      width: 1000,
+      height: 1000,
       fonts: [
         {
           name: "Oswald Bold",
