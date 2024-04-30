@@ -2,7 +2,6 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-const headerTextSize = 80;
 const subTestSize = 50;
 const circleSize = 800;
 const textShadow =
@@ -12,7 +11,7 @@ const textShadow =
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const label = searchParams.get("label")!;
+  const label = decodeURI(searchParams.get("label")!);
   const icon = searchParams.get("icon")!;
   const collectionSlug = searchParams.get("collectionSlug")!;
   const x = Number(searchParams.get("x")!);
@@ -20,6 +19,8 @@ export async function GET(request: Request) {
   const radius = 100;
   const circumference = Number(searchParams.get("circumference")!);
   const strokeDasharray = searchParams.get("strokeDasharray")!;
+
+  const headerTextSize = label.length < 18 ? 80 : 70;
 
   const fontData = await fetch(
     new URL("@/app/assets/Oswald-Bold.ttf", import.meta.url)
@@ -178,7 +179,7 @@ export async function GET(request: Request) {
               textShadow: textShadow,
             }}
           >
-            Out of the {y} {label} holders,
+            Out of the {y} NFT holders,
           </p>
           <p
             style={{

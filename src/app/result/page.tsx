@@ -12,8 +12,14 @@ import {
   Modal,
 } from "@mantine/core";
 import { db, firebase } from "../lib/firebase";
-import { chainOptions, AlchemyChainNames, ChainName } from "../lib/chain";
+import {
+  chainOptions,
+  AlchemyChainNames,
+  ChainName,
+  ZoraNetworks,
+} from "../lib/chain";
 import { PieChartComponent } from "../components/PieChartComponent";
+
 const tableData: TableData = {
   caption: "",
   head: ["Icon", "Name", "Address", "Follower", "Following"],
@@ -91,8 +97,28 @@ export default async function Page({
     const response = await fetch(url, fetchOptions);
     const contractData = await response.json();
     const label = contractData.name;
-    const icon = contractData.openSeaMetadata.imageUrl;
-    const collectionSlug = contractData.openSeaMetadata.collectionSlug;
+
+    // OpenSeaの情報を取得
+    let icon = contractData.openSeaMetadata.imageUrl;
+    let collectionSlug = contractData.openSeaMetadata.collectionSlug;
+
+    // OpenSeaの情報が取得できない場合は個別のNFTからデータを取る
+    if (!icon) {
+      const url = `https://${
+        AlchemyChainNames[chain as ChainName]
+      }.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForContract?contractAddress=${contractAddress}&withMetadata=true`;
+      const response = await fetch(url, fetchOptions);
+      const tokenData = await response.json();
+      const firstNFT = tokenData.nfts[0];
+      if (firstNFT.image.cachedUrl) {
+        icon = firstNFT.image.cachedUrl;
+      }
+    }
+
+    if (!collectionSlug) {
+      collectionSlug = contractData.name.toLowerCase().replace(/\s/g, "-");
+    }
+
 
     return { label, icon, collectionSlug };
   };
