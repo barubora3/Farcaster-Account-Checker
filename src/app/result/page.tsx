@@ -110,7 +110,8 @@ export default async function Page({
       const response = await fetch(url, fetchOptions);
       const tokenData = await response.json();
       const firstNFT = tokenData.nfts[0];
-      if (firstNFT.image.cachedUrl) {
+      console.log(firstNFT);
+      if (firstNFT.image?.cachedUrl) {
         icon = firstNFT.image.cachedUrl;
       }
     }
@@ -118,7 +119,6 @@ export default async function Page({
     if (!collectionSlug) {
       collectionSlug = contractData.name.toLowerCase().replace(/\s/g, "-");
     }
-
 
     return { label, icon, collectionSlug };
   };
