@@ -8,6 +8,14 @@ import { createSystem } from "frog/ui";
 const app = new Frog({
   basePath: "/api",
   imageAspectRatio: "1:1",
+  hub: {
+    apiUrl: "https://hubs.airstack.xyz",
+    fetchOptions: {
+      headers: {
+        "x-airstack-hubs": "AIRSTACK_API_KEY",
+      },
+    },
+  },
 });
 
 const OpenSeaURL = "https://opensea.io/collection/";
@@ -95,7 +103,6 @@ app.frame("/:id", async (c) => {
       ","
     ),
   });
-
 
   return c.res({
     image: `${process.env.NEXT_PUBLIC_SITE_URL}/api/image?${newSearchParams}`,
